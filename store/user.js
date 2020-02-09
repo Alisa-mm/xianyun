@@ -15,9 +15,9 @@ export const mutations={
     },
     // 清除用户数据
     clearUserInfo(state,info){
-        if(process.browser){
-            localStorage.removeItem('userInfo')
-        }
+        // if(process.browser){
+        //     localStorage.removeItem('userInfo')
+        // }
         state.userInfo= {}
     }
 
@@ -25,6 +25,7 @@ export const mutations={
 // action 异步操作应该放在action中
 export const actions = {
     // 第一个参数是固定的store 第二个参数是调用这个login方法时传入的数据
+    // 登录
    login(store,data){
    return this.$axios({
         url:"accounts/login",
@@ -36,5 +37,29 @@ export const actions = {
      // 调用mutations方法 把data存到store
      store.commit("setUserInfo",data)
     })
-   }
+   },
+   //发送验证码
+   SendCaptcha(store,data){
+   return this.$axios({
+        url: "/captchas",
+        method: "POST",
+        data:{
+            tel:data
+        }
+      })
+   },
+  //注册
+  register(store,data){
+    return this.$axios({
+        url: "accounts/register",
+        method: "POST",
+        data
+      }).then(res => {
+        //   console.log(res);
+        const{data}=res
+        // 调用mutations方法 把data存到store
+        store.commit("setUserInfo",data)
+        return res
+      })
+  }    
 }
