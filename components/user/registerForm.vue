@@ -79,7 +79,8 @@ export default {
       // 验证规则
       rules: {
         username: [
-          { required: true, message: "请输入用户名", trigger: "blur" }
+          { validator: validateUsername,
+            trigger: "blur" }
         ],
         password: [
           {
