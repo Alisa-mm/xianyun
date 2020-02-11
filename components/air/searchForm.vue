@@ -84,7 +84,7 @@ export default {
                 departCode:"",//出发城市代码
                 destCity:"",//到达城市
                 destCode:"",//到达城市代码
-                departData:"",//出发日期
+                departDate:"",//出发日期
             },
             //出发城市列表
              departData: [],
@@ -123,6 +123,8 @@ export default {
                 const newData = data.map(v=>{
                     v.value=v.name.replace("市","");
                     return v
+                    console.log(newData);
+                    
                 })
                return newData
             })
@@ -180,13 +182,20 @@ export default {
         },
 
           // 出发城市输入框失去焦点时候触发
-        handleDepartBlur(value){
+        handleDepartBlur(){
             if(this.departData.length === 0){
                 return
             }
+          
+            if(this.form.departCity===""){
+                console.log("aaa");
+                this.departData=[]  
+            }else{
             // 默认获取数组中第一个城市
             this.form.departCity =  this.departData[0].value;
             this.form.departCode =  this.departData[0].sort;
+            }
+            
         },
 
         // 到达城市输入框失去焦点时候触发
@@ -194,9 +203,16 @@ export default {
             if(this.destData.length === 0){
                return  
             }
-            // 默认获取数组中第一个城市
+
+             if(this.form.departCity===""){
+                console.log("aaa");
+                this.departData=[]  
+            }else{
+                // 默认获取数组中第一个城市
             this.form.destCity =  this.destData[0].value;
             this.form.destData =  this.destData[0].sort;
+            }
+            
         },
 
 
@@ -231,7 +247,25 @@ export default {
 
         // 提交表单是触发
         handleSubmit(){
-           
+            console.log(this.form)
+            if(!this.form.departCity){
+                this.$message.error("请输入出发城市");
+                return;
+            }
+            if(!this.form.destCity){
+                this.$message.error("请输入到达城市");
+                return;
+            }
+            if(!this.form.departDate){
+                this.$message.error("请选择时间");
+                return;
+            }
+           // 跳转到 /air/flights，保证该页面url的参数有5个参数
+           this.$router.push({
+               path: "/air/flights",
+               // query是url的参数
+               query: this.form
+           })
         },
     }
 }
