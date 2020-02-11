@@ -19,6 +19,7 @@
                 v-model="form.departCity"
                 :fetch-suggestions="queryDepartSearch"
                 placeholder="请搜索出发城市"
+                @blur="handleDepartBlur"
                 @select="handleDepartSelect"
                 class="el-autocomplete"
                 ></el-autocomplete>
@@ -29,6 +30,7 @@
                 v-model="form.destCity"
                 :fetch-suggestions="queryDestSearch"
                 placeholder="请搜索到达城市"
+                @blur="handleDestBlur"
                 @select="handleDestSelect"
                 class="el-autocomplete"
                 ></el-autocomplete>
@@ -170,6 +172,27 @@ export default {
             callback(newData) 
            })
         },
+
+          // 出发城市输入框失去焦点时候触发
+        handleDepartBlur(value){
+            if(this.departData.length === 0){
+                return
+            }
+            // 默认获取数组中第一个城市
+            this.form.departCity =  this.departData[0].value;
+            this.form.departCode =  this.departData[0].sort;
+        },
+
+        // 到达城市输入框失去焦点时候触发
+        handleDestBlur(){
+            if(this.destData.length === 0){
+               return  
+            }
+            // 默认获取数组中第一个城市
+            this.form.destCity =  this.destData[0].value;
+            this.form.destData =  this.destData[0].sort;
+        },
+
 
          // 出发城市下拉选择时触发
         handleDepartSelect(item) {
