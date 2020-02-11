@@ -59,6 +59,9 @@
 </template>
 
 <script>
+// 引入日期插件
+import moment from "moment";
+
 export default {
     data () {
         return {
@@ -80,7 +83,11 @@ export default {
                 destCity:"",//到达城市
                 destCode:"",//到达城市代码
                 departData:"",//出发日期
-            }
+            },
+            //出发城市列表
+             departData: [],
+            // 到达城市列表
+             destData: []
         }
     },
     methods: {
@@ -89,29 +96,97 @@ export default {
             this.currentTab=index
         },
 
+        //  出发城市和到达城市输入框变化时 获取城市下拉列表的代码是一样的 可以封装起来 方便调用
+
+        getCityList(value,callback){
+            // 有value值才发请求 根据value值获取城市列表
+          return this.$axios({
+                url:"/airs/city",
+                method:'GET',
+                // axios的get请求的参数使用params, 如果是post请求使用data
+                params: {
+                    name: value
+                }
+            }).then(res=>{
+                console.log(res);
+                // 后台返回的数据中data是数组(里面是对象)，但是数组里面的对象中没有value值
+                const{data} = res.data;
+                // 给data中每一项都加上value属性（遍历数组 用map 会返回一个新数组）
+                const newData = data.map(v=>{
+                    v.value=v.name.replace("市","");
+                    return v
+                })
+               return newData
+            })
+        },
         // 出发城市输入框获得焦点时触发
         // value是输入框的值，callback回调函数 接收要展示的列表
         queryDepartSearch(value,callback){
-
+            // 如果输入框，没有值就直接返回
+            if(!value){
+                return
+            }
+            // 调用封装好的getCityList方法
+           this.getCityList(value).then(newData=>{
+                // 把callback中展示的数据给到出发城市列表
+                this.departData = newData
+                // callback把数组展示到列表中，数组中的每一项必须是对象 对象中必须有value属性
+                callback(newData) 
+           })
+            // // 如果输入框，没有值就直接返回
+            // if(!value){
+            //     return
+            // }
+            // // 有value值才发请求 根据value值获取城市列表
+            // this.$axios({
+            //     url:"/airs/city",
+            //     method:'GET',
+            //     // axios的get请求的参数使用params, 如果是post请求使用data
+            //     params: {
+            //         name: value
+            //     }
+            // }).then(res=>{
+            //     console.log(res);
+            //     // 后台返回的数据中data是数组(里面是对象)，但是数组里面的对象中没有value值
+            //     const{data} = res.data;
+            //     // 给data中每一项都加上value属性（遍历数组 用map 会返回一个新数组）
+            //     const newData = data.map(v=>{
+            //         v.value=v.name.replace("市","");
+            //         return v
+            //     })
+            //     // callback把数组展示到列表中，数组中的每一项必须是对象 对象中必须有value属性
+            //     callback(newData) 
+            // })
         },
 
         // 到达城市输入框获得焦点时触发
         queryDestSearch(value,callback){
-
+            // 如果输入框，没有值就直接返回
+            if(!value){
+                return
+            }
+            this.getCityList(value).then(newData=>{
+            this.destData = newData
+            callback(newData) 
+           })
         },
 
          // 出发城市下拉选择时触发
         handleDepartSelect(item) {
-            
+            this.form.departCity=item.value;
+            this.form.departCode = item.sort;
         },
 
-        // 目标城市下拉选择时触发
+        // 到达城市下拉选择时触发
         handleDestSelect(item) {
-            
+            this.form.destCity=item.value;
+            this.form.destCode=item.sort;
         },
 
        // 确认选择日期时触发
         handleDate(value){
+           this.form.departDate=moment(value).format("YYYY-MM-DD")
+           console.log(this.form.departDate);
            
         },
 
