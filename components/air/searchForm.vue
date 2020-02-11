@@ -96,6 +96,12 @@ export default {
         // tab栏切换时触发
         handleSearchTab(index){
             this.currentTab=index
+            if(index===1){
+                this.$alert("目前暂不支持往返，请使用单程选票！","提示",{
+                    confirmButtonText: '确定',
+                    type: "warning"
+                })
+            }
         },
 
         //  出发城市和到达城市输入框变化时 获取城市下拉列表的代码是一样的 可以封装起来 方便调用
@@ -110,7 +116,7 @@ export default {
                     name: value
                 }
             }).then(res=>{
-                console.log(res);
+                // console.log(res);
                 // 后台返回的数据中data是数组(里面是对象)，但是数组里面的对象中没有value值
                 const{data} = res.data;
                 // 给data中每一项都加上value属性（遍历数组 用map 会返回一个新数组）
@@ -215,7 +221,12 @@ export default {
 
         // 出发和目标城市切换时触发
         handleReverse(){
-            
+            // 触发和目标城市切换时触发
+            const {departCity, departCode, destCity, destCode} = this.form;
+            this.form.departCity = destCity;
+            this.form.departCode = destCode;
+            this.form.destCity = departCity;
+            this.form.destCode = departCode;
         },
 
         // 提交表单是触发
