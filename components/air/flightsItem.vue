@@ -59,6 +59,7 @@
 export default {
     data () {
         return {
+            showRecommend: false // 列表默认收起
         }
     },
     props: {
