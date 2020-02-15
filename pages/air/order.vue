@@ -20,7 +20,7 @@ export default {
     // 注册组件
     components:{
         OrderForm
-    },
+    }
 }
 </script>
 

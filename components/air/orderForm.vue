@@ -2,14 +2,12 @@
   <div class="main">
     <div class="air-column">
       <h2>乘机人</h2>
-      
+
       <el-form class="member-info">
-      <!-- 循环乘机人信息 -->
-        <div class="member-info-item"
-         v-for="(item,index) in form.users" :key="index">
+        <!-- 循环乘机人信息 -->
+        <div class="member-info-item" v-for="(item,index) in form.users" :key="index">
           <el-form-item label="乘机人类型">
-            <el-input placeholder="姓名" class="input-with-select"
-             v-model="form.users.username">
+            <el-input placeholder="姓名" class="input-with-select" v-model="form.users.username">
               <el-select slot="prepend" value="1" placeholder="请选择">
                 <el-option label="成人" value="1"></el-option>
               </el-select>
@@ -17,8 +15,7 @@
           </el-form-item>
 
           <el-form-item label="证件类型">
-            <el-input placeholder="证件号码" class="input-with-select" 
-            v-model="form.users.id">
+            <el-input placeholder="证件号码" class="input-with-select" v-model="form.users.id">
               <el-select slot="prepend" value="1" placeholder="请选择">
                 <el-option label="身份证" value="1" :checked="true"></el-option>
               </el-select>
@@ -35,8 +32,13 @@
     <div class="air-column">
       <h2>保险</h2>
       <div>
-        <div class="insurance-item">
-          <el-checkbox label="航空意外险：￥30/份×1  最高赔付260万" border></el-checkbox>
+        <!-- 循环保险数据 -->
+        <div class="insurance-item"
+         v-for="(item, index) in infoData.insurances"
+         :key="index">
+          <el-checkbox :label="`${item.type}：￥${item.price}/份×1  最高赔付${item.compensation}`"
+           @change="handleInsurance(item.id)"
+           border></el-checkbox>
         </div>
       </div>
     </div>
@@ -69,47 +71,77 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
-     form:{
-      //  乘机人列表
-        users:[
-        {
-          username:'',
-          id:''
-        }
-      ],
-      insurances:[],
-      contactName:'',
-      contactPhone:'',
-      captcha:'',
-      invoice:false, //是否需要发票 默认为false
-      seat_xid:this.$route.query.seat_xid,
-      air:this.$route.query.id
-     },
+      form: {
+        //  乘机人列表
+        users: [
+          {
+            username: "",
+            id: ""
+          }
+        ],
+        insurances: [],
+        contactName: "",
+        contactPhone: "",
+        captcha: "",
+        invoice: false, //是否需要发票 默认为false
+        seat_xid: this.$route.query.seat_xid,
+        air: this.$route.query.id
+      },
       //  当前机票的详细信息
-      infoData:{}
-    }
+      infoData: {}
+    };
   },
   methods: {
     // 添加乘机人
     handleAddUsers() {
       this.form.users.push({
-        username:'',
-        id:''
-      })
+        username: "",
+        id: ""
+      });
     },
 
     // 移除乘机人
     handleDeleteUser(index) {
-      this.form.users.splice(index,1)
+      this.form.users.splice(index, 1);
     },
-
+    // 处理保险数据
+    handleInsurance(id){
+      //判断数组中是否存在这个id
+      const index=this.form.insurances.indexOf(id);
+      // 如果已经存在这个id 说明当前是取消状态
+      if(index>-1){
+        // 删除这个id
+        this.form.insurances.splice(index,1)
+      }else{
+        // 如果没有这个id 就是新增状态
+        this.form.insurances.push(id)
+      }
+      
+    },
     // 发送手机验证码
     handleSendCaptcha() {},
 
     // 提交订单
-    handleSubmit() {}
+    handleSubmit() {
+       console.log(this.form.insurances)
+    }
+  },
+  mounted() {
+    // 请求机票的详细信息
+    const { id, seat_xid } = this.$route.query;
+    this.$axios({
+      url: "/airs/" + id,
+      params: {
+        seat_xid
+      }
+    }).then(res => {
+      console.log(res);
+      
+      // 赋值给机票的详细信息
+      this.infoData = res.data;
+    });
   }
 };
 </script>
