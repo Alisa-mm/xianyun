@@ -29,6 +29,7 @@
       <!-- 侧边栏 -->
       <div class="aside">
         <!-- 侧边栏组件 -->
+        <FlightsAside/>
       </div>
     </el-row>
   </section>
@@ -38,6 +39,7 @@
 import FlightsListHead from "@/components/air/flightsListHead.vue";
 import FlightsItem from "@/components/air/flightsItem.vue";
 import FlightsFilters from "@/components/air/flightsFilters.vue";
+import FlightsAside from "@/components/air/flightsAside.vue";
 
 export default {
   data() {
@@ -65,7 +67,8 @@ export default {
   components: {
     FlightsListHead,
     FlightsItem,
-    FlightsFilters
+    FlightsFilters,
+    FlightsAside
   },
   methods: {
     // 发送请求获取航班总数据
@@ -113,6 +116,12 @@ export default {
         this.pageIndex * this.pageSize
       );
       return arr;
+    }
+  },
+  watch: {
+    //监听url的变化 有变化就重新加载列表数据
+    $route(){
+      this.getData()
     }
   },
   mounted() {

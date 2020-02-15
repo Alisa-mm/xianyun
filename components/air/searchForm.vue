@@ -248,7 +248,7 @@ export default {
 
     // 提交表单是触发
     handleSubmit() {
-      console.log(this.form);
+      // console.log(this.form);
       if (!this.form.departCity) {
         this.$message.error("请输入出发城市");
         return;
