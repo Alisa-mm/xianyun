@@ -118,11 +118,23 @@ export default {
       return arr;
     }
   },
-  watch: {
-    //监听url的变化 有变化就重新加载列表数据
-    $route(){
-      this.getData()
-    }
+  // watch: {
+  //   //监听url的变化 有变化就重新加载航班列表数据
+  //   // 每次url变化时候把pageIndex初始化为1
+  //   $route(){
+  //     this.pageIndex = 1;
+  //     this.getData()
+  //   }
+  // },
+  beforeRouteUpdate (to, from, next) {
+    // to是要跳转的页面路由
+    // from是要离开的页面路由
+    // next是必须要调用
+    // 每次url变化时候把pageIndex初始化为1
+    this.pageIndex = 1;
+    next()
+    this.getData();
+    //  next()放在this.getData()下面没效果
   },
   mounted() {
     // 页面加载获取航班数据
