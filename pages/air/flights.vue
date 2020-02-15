@@ -98,7 +98,6 @@ export default {
       this.flightsData.flights=arr;
       //总条数
       this.total=arr.length
-
     }
   },
   computed: {

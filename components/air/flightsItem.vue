@@ -41,7 +41,8 @@
                             ￥{{item.settle_price}}
                         </el-col>
                         <el-col :span="3" class="choose-button">
-                            <el-button 
+                            <el-button
+                            @click="handleChoose(item)" 
                             type="warning" 
                             size="mini">
                             选定
@@ -69,6 +70,18 @@ export default {
             // 默认是空数组
             default: {}
         }
+    },
+    methods: {
+        // 跳转到机票订单页(跳转过去，需要带过去两个参数id,seat_xid)
+      handleChoose(item){
+          this.$router.push({
+              path:'/air/order',
+              query:{
+                  id:this.data.id,
+                  seat_xid:item.seat_xid
+              }
+          })
+      }  
     },
     computed:{
         // 计算相隔时间
