@@ -33,12 +33,12 @@
       <h2>保险</h2>
       <div>
         <!-- 循环保险数据 -->
-        <div class="insurance-item"
-         v-for="(item, index) in infoData.insurances"
-         :key="index">
-          <el-checkbox :label="`${item.type}：￥${item.price}/份×1  最高赔付${item.compensation}`"
-           @change="handleInsurance(item.id)"
-           border></el-checkbox>
+        <div class="insurance-item" v-for="(item, index) in infoData.insurances" :key="index">
+          <el-checkbox
+            :label="`${item.type}：￥${item.price}/份×1  最高赔付${item.compensation}`"
+            @change="handleInsurance(item.id)"
+            border
+          ></el-checkbox>
         </div>
       </div>
     </div>
@@ -66,6 +66,7 @@
         <el-button type="warning" class="submit" @click="handleSubmit">提交订单</el-button>
       </div>
     </div>
+    <span>{{allPrice}}</span>
   </div>
 </template>
 
@@ -93,6 +94,32 @@ export default {
       infoData: {}
     };
   },
+  computed: {
+    //总价格展示在侧边栏组件
+    allPrice() {
+      //先判断infoData中是否有数据
+      if (!this.infoData.seat_infos) {
+        return;
+      }
+      let price = 0;
+      // 单价
+      price += this.infoData.seat_infos.org_settle_price;
+      // 基建燃油费
+      price += this.infoData.airport_tax_audlet;
+      // 保险
+      this.infoData.insurances.forEach(v => {
+        // 如果选中的id数组包含了当前的保险id，需要加上保险的价格
+        if (this.form.insurances.indexOf(v.id) > -1) {
+          price += v.price;
+        }
+      });
+      // 人数的数量
+      price *= this.form.users.length;
+      // 把总价保存到store
+      this.$store.commit("air/setAllPrice", price);
+      return "";
+    }
+  },
   methods: {
     // 添加乘机人
     handleAddUsers() {
@@ -107,30 +134,31 @@ export default {
       this.form.users.splice(index, 1);
     },
     // 处理保险数据
-    handleInsurance(id){
+    handleInsurance(id) {
       //判断数组中是否存在这个id
-      const index=this.form.insurances.indexOf(id);
+      const index = this.form.insurances.indexOf(id);
       // 如果已经存在这个id 说明当前是取消状态
-      if(index>-1){
+      if (index > -1) {
         // 删除这个id
-        this.form.insurances.splice(index,1)
-      }else{
+        this.form.insurances.splice(index, 1);
+      } else {
         // 如果没有这个id 就是新增状态
-        this.form.insurances.push(id)
+        this.form.insurances.push(id);
       }
-      
     },
     // 发送手机验证码
     handleSendCaptcha() {
       //  console.log(this.form)
-      if(!this.form.contactPhone){
-        this.$message.error("手机号码不能为空")
+      if (!this.form.contactPhone) {
+        this.$message.error("手机号码不能为空");
         return;
       }
       // 调用store/user.js中发送验证码的方法
-      this.$store.dispatch("user/SendCaptcha",this.form.contactPhone).then(res=>{
-         this.$message.success("验证码发送成功：000000");
-       })
+      this.$store
+        .dispatch("user/SendCaptcha", this.form.contactPhone)
+        .then(res => {
+          this.$message.success("验证码发送成功：000000");
+        });
     },
 
     // 提交订单
@@ -138,79 +166,75 @@ export default {
       // 自定义表单验证
       const rules = {
         // 校验用户列表
-        user:{
-          errMessage:"乘机人信息不能为空",
+        user: {
+          errMessage: "乘机人信息不能为空",
           // 校验的函数，该函数返回是true证明验证通过，如果是false验证失败
-          validator:()=>{
+          validator: () => {
             let valid = true;
             console.log(this.form.users);
-            this.form.users.forEach(v=>{
+            this.form.users.forEach(v => {
               // console.log(this.form.users);
               // 只要有一个属性的值是空的话 表单验证就不通过
-              if(!v.username || !v.id){
+              if (!v.username || !v.id) {
                 valid = false;
               }
-            })
+            });
             return valid;
           }
         },
         // 校验联系人
-        contactName:{
-          errMessage:"联系人不能为空",
-          validator:()=>{
-            // 两个!!是双重取反 把字符串转换为布尔值(如果空字符串就是false 有值就是true) 
-            return !!this.form.contactName
+        contactName: {
+          errMessage: "联系人不能为空",
+          validator: () => {
+            // 两个!!是双重取反 把字符串转换为布尔值(如果空字符串就是false 有值就是true)
+            return !!this.form.contactName;
           }
         },
         //校验手机号
-        contactPhone:{
-          errMessage:"手机号不能为空",
-          validator:()=>{
-            return !!this.form.contactPhone
+        contactPhone: {
+          errMessage: "手机号不能为空",
+          validator: () => {
+            return !!this.form.contactPhone;
           }
         },
         // 校验验证码
-         captcha:{
-          errMessage:"验证码不能为空",
-          validator:()=>{
-            return !!this.form.captcha
+        captcha: {
+          errMessage: "验证码不能为空",
+          validator: () => {
+            return !!this.form.captcha;
           }
-        },
-
+        }
       };
       // 循环rules对象 调用validator 方法校验
       // console.log(Object.keys(rules)) //Object.keys(要循环的对象)循环对象的方法
       // 先假设所有字段都校验通过
-        let valid= true;
-      Object.keys(rules).forEach(v=>{
+      let valid = true;
+      Object.keys(rules).forEach(v => {
         // 如果有字段校验不通过 就不用继续校验了
-        if(!valid) return;
-        const item = rules[v];//rules[v]就对象里面的每一项
+        if (!valid) return;
+        const item = rules[v]; //rules[v]就对象里面的每一项
         // 执行每个字段 下的validator函数
         valid = item.validator();
-        if(!valid){
-          this.$message.error(item.errMessage)
+        if (!valid) {
+          this.$message.error(item.errMessage);
         }
-
       });
-       // 如果验证没通过，就直接返回
-      if(!valid) return;
+      // 如果验证没通过，就直接返回
+      if (!valid) return;
       // 调用订单接口
       this.$axios({
-        url:"/airorders",
-        method:'POST',
-        data:this.form,
-        headers:{
+        url: "/airorders",
+        method: "POST",
+        data: this.form,
+        headers: {
           //必须要在token前面加上`Bearer `字符串，后面有一个空格
-          Authorization:`Bearer `+this.$store.state.user.userInfo.token
+          Authorization: `Bearer ` + this.$store.state.user.userInfo.token
         }
-      }).then(res=>{
+      }).then(res => {
         // console.log(res);
-        this.$message.success("订单提交成功")  
-      })
-      
+        this.$message.success("订单提交成功");
+      });
     }
-
   },
   mounted() {
     // 请求机票的详细信息
@@ -225,7 +249,7 @@ export default {
       // 赋值给机票的详细信息
       this.infoData = res.data;
       // 把infoData保存到store中
-      this.$store.commit("air/setOrderDetail",this.infoData)
+      this.$store.commit("air/setOrderDetail", this.infoData);
     });
   }
 };

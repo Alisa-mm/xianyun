@@ -6,7 +6,8 @@ export const state=()=>{
         orderDetail:{
             //避免模板报错
             seat_infos:{}
-        }
+        },
+        allPrice:0
     }
 }
 
@@ -18,6 +19,11 @@ export const mutations={
     //修改orderDetail的数据
     setOrderDetail(state,data){
         state.orderDetail=data
+    },
+     // 保存总价格
+     setAllPrice(state, data){
+        state.allPrice = data;
     }
+
 }
 
