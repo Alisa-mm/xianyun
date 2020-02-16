@@ -7,7 +7,7 @@
         <!-- 循环乘机人信息 -->
         <div class="member-info-item" v-for="(item,index) in form.users" :key="index">
           <el-form-item label="乘机人类型">
-            <el-input placeholder="姓名" class="input-with-select" v-model="form.users.username">
+            <el-input placeholder="姓名" class="input-with-select" v-model="item.username">
               <el-select slot="prepend" value="1" placeholder="请选择">
                 <el-option label="成人" value="1"></el-option>
               </el-select>
@@ -15,7 +15,7 @@
           </el-form-item>
 
           <el-form-item label="证件类型">
-            <el-input placeholder="证件号码" class="input-with-select" v-model="form.users.id">
+            <el-input placeholder="证件号码" class="input-with-select" v-model="item.id">
               <el-select slot="prepend" value="1" placeholder="请选择">
                 <el-option label="身份证" value="1" :checked="true"></el-option>
               </el-select>
@@ -135,8 +135,83 @@ export default {
 
     // 提交订单
     handleSubmit() {
-       console.log(this.form.insurances)
+      // 自定义表单验证
+      const rules = {
+        // 校验用户列表
+        user:{
+          errMessage:"乘机人信息不能为空",
+          // 校验的函数，该函数返回是true证明验证通过，如果是false验证失败
+          validator:()=>{
+            let valid = true;
+            console.log(this.form.users);
+            this.form.users.forEach(v=>{
+              // console.log(this.form.users);
+              // 只要有一个属性的值是空的话 表单验证就不通过
+              if(!v.username || !v.id){
+                valid = false;
+              }
+            })
+            return valid;
+          }
+        },
+        // 校验联系人
+        contactName:{
+          errMessage:"联系人不能为空",
+          validator:()=>{
+            // 两个!!是双重取反 把字符串转换为布尔值(如果空字符串就是false 有值就是true) 
+            return !!this.form.contactName
+          }
+        },
+        //校验手机号
+        contactPhone:{
+          errMessage:"手机号不能为空",
+          validator:()=>{
+            return !!this.form.contactPhone
+          }
+        },
+        // 校验验证码
+         captcha:{
+          errMessage:"验证码不能为空",
+          validator:()=>{
+            return !!this.form.captcha
+          }
+        },
+
+      };
+      // 循环rules对象 调用validator 方法校验
+      // console.log(Object.keys(rules)) //Object.keys(要循环的对象)循环对象的方法
+      // 先假设所有字段都校验通过
+        let valid= true;
+      Object.keys(rules).forEach(v=>{
+        // 如果有字段校验不通过 就不用继续校验了
+        if(!valid) return;
+        const item = rules[v];//rules[v]就对象里面的每一项
+        // 执行每个字段 下的validator函数
+        valid = item.validator();
+        if(!valid){
+          this.$message.error(item.errMessage)
+        }
+
+      });
+       // 如果验证没通过，就直接返回
+      if(!valid) return;
+      // 调用订单接口
+      this.$axios({
+        url:"/airorders",
+        method:'POST',
+        data:this.form,
+        headers:{
+          //必须要在token前面加上`Bearer `字符串，后面有一个空格
+          Authorization:`Bearer `+this.$store.state.user.userInfo.token
+        }
+      }).then(res=>{
+        console.log(res);
+        
+      })
+     
+      
     }
+
   },
   mounted() {
     // 请求机票的详细信息
