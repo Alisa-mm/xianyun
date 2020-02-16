@@ -8,7 +8,7 @@
 
             <!-- 侧边栏 -->
             <div class="aside">
-                          
+                <OrderAside :data="$store.state.air.orderDetail"/>          
             </div>
         </el-row>
     </div>
@@ -16,10 +16,12 @@
 
 <script>
 import OrderForm from "@/components/air/OrderForm"
+import OrderAside from "@/components/air/orderAside"
+
 export default {
     // 注册组件
     components:{
-        OrderForm
+        OrderForm,OrderAside
     }
 }
 </script>

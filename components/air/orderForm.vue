@@ -205,10 +205,9 @@ export default {
           Authorization:`Bearer `+this.$store.state.user.userInfo.token
         }
       }).then(res=>{
-        console.log(res);
-        
+        // console.log(res);
+        this.$message.success("订单提交成功")  
       })
-     
       
     }
 
@@ -223,9 +222,10 @@ export default {
       }
     }).then(res => {
       console.log(res);
-      
       // 赋值给机票的详细信息
       this.infoData = res.data;
+      // 把infoData保存到store中
+      this.$store.commit("air/setOrderDetail",this.infoData)
     });
   }
 };
