@@ -171,7 +171,7 @@ export default {
           // 校验的函数，该函数返回是true证明验证通过，如果是false验证失败
           validator: () => {
             let valid = true;
-            console.log(this.form.users);
+            // console.log(this.form.users);
             this.form.users.forEach(v => {
               // console.log(this.form.users);
               // 只要有一个属性的值是空的话 表单验证就不通过
@@ -221,7 +221,7 @@ export default {
       });
       // 如果验证没通过，就直接返回
       if (!valid) return;
-      // 调用订单接口
+      // 调用提交订单接口
       this.$axios({
         url: "/airorders",
         method: "POST",
@@ -231,8 +231,15 @@ export default {
           Authorization: `Bearer ` + this.$store.state.user.userInfo.token
         }
       }).then(res => {
-        // console.log(res);
+        console.log(res);
         this.$message.success("订单提交成功");
+        // 跳转到付款页面
+        this.$router.push({
+          path:'/air/pay',
+          query:{
+            id:res.data.data.id //这个是订单id
+          }
+        })
       });
     }
   },
@@ -245,7 +252,7 @@ export default {
         seat_xid
       }
     }).then(res => {
-      console.log(res);
+      // console.log(res);
       // 赋值给机票的详细信息
       this.infoData = res.data;
       // 把infoData保存到store中
