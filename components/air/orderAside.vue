@@ -28,13 +28,27 @@
     <el-row type="flex" justify="space-between" class="info-bar">
       <span>成人机票</span>
       <span>￥{{data.seat_infos.org_settle_price}}</span>
-      <span>x1</span>
+      <span>x{{$store.state.air.userLength}}</span>
     </el-row>
     <el-row type="flex" justify="space-between" class="info-bar">
       <span>机建＋燃油</span>
       <span>¥{{data.airport_tax_audlet}}/人/单程</span>
-      <span>x1</span>
+      <span>x{{$store.state.air.userLength}}</span>
     </el-row>
+     <!-- 调用store中的insurancesId的值 使用v-if来判断展示和隐藏 航空意外险id为1 航空延误险id为2 -->
+     <!-- 数组.includes方法用来判断一个数组里是否包含一个指定的值，是的就返回true 不是就返回false -->
+     <el-row type="flex" justify="space-between" class="info-bar" v-if="$store.state.air.insurancesId.includes(1)" >
+      <span>航空意外险</span>
+      <span>￥30/份</span>
+      <span>x{{$store.state.air.userLength}}</span>
+    </el-row>
+
+      <el-row type="flex" justify="space-between" class="info-bar" v-if="$store.state.air.insurancesId.includes(2)" >
+      <span>航空延误险</span>
+      <span>￥30/份</span>
+      <span>x{{$store.state.air.userLength}}</span>
+    </el-row>
+    
     <el-row type="flex" justify="space-between" align="middle" class="info-bar">
       <span>应付总额：</span>
       <span class="price">￥{{Number($store.state.air.allPrice).toFixed(2)}}</span>
@@ -44,6 +58,11 @@
 
 <script>
 export default {
+  data () {
+    return {
+      isShow:false,
+    }
+  },
   props: {
     data: {
       type: Object,
@@ -52,7 +71,6 @@ export default {
       }
     }
   },
-
   computed: {
     rankTime() {
       // 数据还未请求回来
@@ -75,7 +93,7 @@ export default {
       // 得到相差时间
       return `${Math.floor(dis / 60)}时${dis % 60}分`;
     }
-  }
+  },
 };
 </script>
 

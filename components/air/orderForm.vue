@@ -35,7 +35,7 @@
         <!-- 循环保险数据 -->
         <div class="insurance-item" v-for="(item, index) in infoData.insurances" :key="index">
           <el-checkbox
-            :label="`${item.type}：￥${item.price}/份×1  最高赔付${item.compensation}`"
+            :label="`${item.type}：￥${item.price}/份×${form.users.length}  最高赔付${item.compensation}`"
             @change="handleInsurance(item.id)"
             border
           ></el-checkbox>
@@ -91,7 +91,9 @@ export default {
         air: this.$route.query.id
       },
       //  当前机票的详细信息
-      infoData: {}
+      infoData: {},
+      //copy当前的保险数组id
+      copyId:[],
     };
   },
   computed: {
@@ -113,10 +115,12 @@ export default {
           price += v.price;
         }
       });
-      // 人数的数量
+      // 人数的数量(一个人的算出来了 有多少乘客 就*多少)
       price *= this.form.users.length;
       // 把总价保存到store
       this.$store.commit("air/setAllPrice", price);
+      // 把user(乘客)数量也保存到store
+      this.$store.commit("air/setUserLength", this.form.users.length);
       return "";
     }
   },
@@ -145,6 +149,12 @@ export default {
         // 如果没有这个id 就是新增状态
         this.form.insurances.push(id);
       }
+      // 完善订单详情里面的侧边栏orderAside 点击保险时让它显示在侧边栏里面
+      // 思路将存放保险id的数组存到store里面
+      // 注意要先深拷贝数组this.form.insurances.push
+      this.copyId = [...this.form.insurances];
+      console.log(this.copyId );
+      this.$store.commit('air/setInsurancesId',this.copyId)
     },
     // 发送手机验证码
     handleSendCaptcha() {
@@ -252,7 +262,7 @@ export default {
         seat_xid
       }
     }).then(res => {
-      // console.log(res);
+      console.log(res);
       // 赋值给机票的详细信息
       this.infoData = res.data;
       // 把infoData保存到store中

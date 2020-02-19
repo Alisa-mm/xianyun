@@ -5,9 +5,13 @@ export const state=()=>{
         //订单的详细信息
         orderDetail:{
             //避免模板报错
-            seat_infos:{}
+            seat_infos:{},
         },
-        allPrice:0
+        allPrice:0,
+        // 定义一个存储保险id的红数组
+        insurancesId:[],
+        // 定义一个users的长度 之后在mutations里面改
+        userLength:0
     }
 }
 
@@ -30,6 +34,14 @@ export const mutations={
      // 保存总价格
      setAllPrice(state, data){
         state.allPrice = data;
+    },
+    // 修改保险数组的值
+    setInsurancesId(state,data){
+        state.insurancesId=data
+    },
+    // 修改userLength的值
+    setUserLength(state,data){
+        state.userLength=data
     }
 
 }
