@@ -3,7 +3,7 @@
     <div class="main">
       <div class="pay-title">
         支付总金额
-        <span class="pay-price">￥ 1000</span>
+        <span class="pay-price">￥{{orderDetail.price}}</span>
       </div>
       <div class="pay-main">
         <h4>微信支付</h4>
@@ -24,9 +24,16 @@
 </template>
 
 <script>
+// 引入生成二维码的包
+import QRCode from "qrcode";
 export default {
   data() {
-    return {};
+    return {
+      // 订单详情
+      orderDetail: {},
+      // 定时器
+      timer: ""
+    };
   },
   mounted() {
     // 获取订单详情 这个请求要放在定时器里面
@@ -39,9 +46,52 @@ export default {
         }
       }).then(res => {
         console.log(res);
-        // console.log(this.$route.query);//query 是一个对象
+        this.orderDetail = res.data;
+        // 付款的二维码链接
+        const { code_url } = this.orderDetail.payInfo;
+        const canvas = document.getElementById("qrcode-stage");
+        QRCode.toCanvas(canvas, code_url, {
+          width: 200
+        });
+        // 查询付款状态
+        this.timer = setInterval(() => {
+          this.CheckPay();
+        }, 3000);
       });
-    }, 1000);//定时器时间写为0 也可以 不影响
+    }, 1000); //定时器时间写为0 也可以 不影响
+  },
+  // 组件销毁时候触发
+  destroyed() {
+    // 停止定时器
+    clearInterval(this.timer);
+  },
+  methods: {
+    // 查询付款状态
+    CheckPay() {
+      const { id, price, orderNo } = this.orderDetail;
+      this.$axios({
+        url: "airorders/checkpay",
+        method: "POST",
+        data: {
+          id,
+          nonce_str: price,
+          out_trade_no: orderNo
+        },
+        headers: {
+          Authorization: `Bearer ` + this.$store.state.user.userInfo.token
+        }
+      }).then(res => {
+        if (res.data.statusTxt == "支付完成") {
+          // 停止定时器
+          clearInterval(this.timer);
+          //支付成功 弹窗出来
+          this.$alert("支付成功", "提示", {
+            confirmButtonText: "确定",
+            type: "success"
+          });
+        }
+      });
+    }
   }
 };
 </script>
